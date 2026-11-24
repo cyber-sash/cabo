@@ -22,9 +22,12 @@ function getHandTotal(cards: Card[]): number {
 
 function hasSpecialWin(cards: Card[]): boolean {
   if (cards.length !== CONFIG.CARDS_PER_PLAYER) return false;
-  const queens = cards.filter((c) => c.rank === "Q").length;
-  const kings = cards.filter((c) => c.rank === "K").length;
-  return queens === SPECIAL_WIN_CARDS.Q && kings === SPECIAL_WIN_CARDS.K;
+  const required = Object.entries(SPECIAL_WIN_CARDS) as [string, number][];
+  const needed = required.reduce((n, [, count]) => n + count, 0);
+  if (needed !== cards.length) return false;
+  return required.every(
+    ([rank, count]) => cards.filter((c) => c.rank === Number(rank)).length === count,
+  );
 }
 
 export function calculateRoundResults(
@@ -41,7 +44,7 @@ export function calculateRoundResults(
     specialWin: false,
   }));
 
-  // Check for special win condition (2×Q + 2×K)
+  // Check for special win condition (2×12 + 2×13)
   const specialWinner = results.find((r) => hasSpecialWin(r.cards));
   if (specialWinner) {
     specialWinner.specialWin = true;

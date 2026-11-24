@@ -91,8 +91,8 @@ export const useActionModal = () => {
     SPY: '🔍 Spy — Look at an opponent\'s card',
     SWAP: '🔄 Swap — Swap a card with an opponent',
     LOOK_AND_SWAP: lookSwapPhase === 'look'
-      ? '👁 Queen — Look at one card'
-      : '🔄 Queen — Now swap (or skip)',
+      ? '👁 Look & Swap — Look at one card'
+      : '🔄 Look & Swap — Now swap (or skip)',
   };
 
   const descriptions: Record<string, string> = {

@@ -374,7 +374,8 @@ export const useGameStore = create<GameStore>()(
   },
 }),
     {
-      name: 'cabo-session',
+      // v2: cards changed from A–K with suits to 0–13; old sessions are dropped.
+      name: 'cabo-session-v2',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         playerId: state.playerId,

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Center,
@@ -6,11 +6,41 @@ import {
   Float,
   ContactShadows,
   MeshTransmissionMaterial,
+  useTexture,
 } from "@react-three/drei";
 import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
+import { CARD_BACK_IMAGE, cardImage } from "../../constants/cards";
 
 // --- 3D Components ---
+
+// Card art as a texture on the card's face plane. Falls back to a plain dark
+// face while the texture loads.
+const CardFace: React.FC<{ src: string; z?: number }> = ({ src, z = 0.008 }) => {
+  const texture = useTexture(src);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  return (
+    <mesh position={[0, 0, z]}>
+      <planeGeometry args={[0.68, 0.95]} />
+      {/* Unlit, so the studio lighting doesn't wash out the art's colours. */}
+      <meshBasicMaterial map={texture} transparent toneMapped={false} />
+    </mesh>
+  );
+};
+
+const CardFaceWithFallback: React.FC<{ src: string; z?: number }> = ({ src, z = 0.008 }) => (
+  <Suspense
+    fallback={
+      <mesh position={[0, 0, z]}>
+        <planeGeometry args={[0.62, 0.92]} />
+        <meshStandardMaterial color="#0a0a0f" roughness={0.8} />
+      </mesh>
+    }
+  >
+    <CardFace src={src} z={z} />
+  </Suspense>
+);
 
 const LuxuryCard: React.FC<{
   position: [number, number, number];
@@ -69,24 +99,8 @@ const LuxuryCard: React.FC<{
         />
       </mesh>
 
-      {/* Back Pattern (Subtle luxury texture) */}
-      <mesh position={[0, 0, 0.008]}>
-        <planeGeometry args={[0.62, 0.92]} />
-        <meshStandardMaterial
-          color="#0a0a0f" // cabo-dark
-          roughness={0.8}
-        />
-      </mesh>
-
-      {/* Gold Foil Accent (Cabo C) */}
-      <mesh position={[0, 0, 0.0085]}>
-        <ringGeometry args={[0.12, 0.15, 32]} />
-        <meshStandardMaterial
-          color="#d4af37" // cabo-accent
-          metalness={0.6}
-          roughness={0.2}
-        />
-      </mesh>
+      {/* Card back art */}
+      <CardFaceWithFallback src={CARD_BACK_IMAGE} />
     </group>
   );
 };
@@ -135,10 +149,7 @@ const DeckPile: React.FC<{ isShuffling: boolean }> = ({ isShuffling }) => {
             roughness={0.7}
             metalness={0.1}
           />
-          <mesh position={[0, 0, 0.008]}>
-            <planeGeometry args={[0.62, 0.92]} />
-            <meshStandardMaterial color="#0a0a0f" roughness={0.8} />
-          </mesh>
+          <CardFaceWithFallback src={CARD_BACK_IMAGE} />
         </mesh>
       ))}
     </group>
@@ -162,17 +173,8 @@ const DiscardPile: React.FC = () => {
       >
         <boxGeometry args={[0.7, 1, 0.015]} />
         <meshStandardMaterial color="#16162a" roughness={0.7} />
-        {/* Face white base */}
-        <mesh position={[0, 0, 0.008]}>
-          <planeGeometry args={[0.62, 0.92]} />
-          <meshStandardMaterial color="#e8e8f0" roughness={0.6} />
-        </mesh>
-        {/* Simple Number 'Cabo' as face up */}
-        <mesh position={[0, 0, 0.0085]}>
-          <planeGeometry args={[0.3, 0.3]} />
-          <meshStandardMaterial color="#6c3483" roughness={0.5} />{" "}
-          {/* cabo-purple touch */}
-        </mesh>
+        {/* Face-up example: the unicorn 0, the best card in the deck */}
+        <CardFaceWithFallback src={cardImage(0)} />
       </mesh>
     </group>
   );

@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { CONFIG } from '@shared/types';
+import { cardImage, cardLabel } from '../../constants/cards';
 
 export const CaboCallSection: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -134,21 +135,21 @@ export const CaboCallSection: React.FC = () => {
               <h3 className="font-display font-bold text-cabo-accent text-sm">Legendary Instant Win</h3>
             </div>
             <p className="text-cabo-textDim text-sm leading-relaxed">
-              Hold exactly two <strong className="text-cabo-accent">Qs</strong> and two{' '}
-              <strong className="text-cabo-accent">Ks</strong> to instantly win and slam every opponent with{' '}
+              Hold exactly two <strong className="text-cabo-accent">12s</strong> and two{' '}
+              <strong className="text-cabo-accent">13s</strong> to instantly win and slam every opponent with{' '}
               <strong className="text-cabo-accent">{CONFIG.SPECIAL_WIN_PENALTY} penalty points</strong>.
             </p>
           </motion.div>
         </div>
 
-        {/* Q-Q-K-K display */}
+        {/* 12-12-13-13 display */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 1, duration: 0.6 }}
           className="flex justify-center gap-2"
         >
-          {['Q', 'Q', 'K', 'K'].map((val, i) => (
+          {([12, 12, 13, 13] as const).map((val, i) => (
             <motion.div
               key={i}
               animate={isInView ? {
@@ -159,9 +160,9 @@ export const CaboCallSection: React.FC = () => {
                 ],
               } : {}}
               transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-              className="w-12 h-16 rounded-lg border border-cabo-accent/40 flex items-center justify-center bg-cabo-surface"
+              className="w-12 h-[67px] rounded-md overflow-hidden bg-cabo-surface"
             >
-              <span className="font-display font-bold text-lg text-cabo-accent">{val}</span>
+              <img src={cardImage(val)} alt={cardLabel(val)} draggable={false} className="w-full h-full object-cover" />
             </motion.div>
           ))}
         </motion.div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { PlayerState } from '@shared/types';
 import { useGameStore } from '../store/gameStore';
+import { CardArt } from './Card';
 
 interface OpponentDisplayProps {
   player: PlayerState;
@@ -46,15 +47,15 @@ export const OpponentDisplay: React.FC<OpponentDisplayProps> = ({ player, onCard
             whileTap={isSelectableForAction ? { scale: 0.95 } : {}}
             onClick={() => isSelectableForAction && onCardClick?.(i)}
             className={`
-              w-7 h-10 md:w-10 md:h-14 rounded md:rounded-lg card-face-down border border-cabo-border
-              ${isSelectableForAction ? 'cursor-pointer hover:border-cabo-accent/50' : ''}
-              ${isCurrentTurn ? 'border-cabo-accent/30' : ''}
+              relative w-7 h-10 md:w-10 md:h-14 rounded-[4px] md:rounded-md overflow-hidden bg-cabo-card shadow
+              ${isSelectableForAction ? 'cursor-pointer ring-1 ring-cabo-accent/60 hover:ring-2' : ''}
+              ${isCurrentTurn && !isSelectableForAction ? 'ring-1 ring-cabo-accent/30' : ''}
             `}
           >
-            <div className="w-full h-full flex flex-col items-center justify-center gap-[1px]">
-              <span className="text-cabo-accent/30 text-[6px] md:text-[8px] font-bold leading-none">C</span>
-              <span className="text-cabo-accent/30 text-[5px] md:text-[6px] font-display leading-none">{i + 1}</span>
-            </div>
+            <CardArt rank={null} />
+            <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 px-1 rounded-full bg-black/55 text-white/90 text-[7px] md:text-[8px] font-display leading-3">
+              {i + 1}
+            </span>
           </motion.div>
         ))}
       </div>

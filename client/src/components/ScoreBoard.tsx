@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScoreBoard } from '../hooks/useScoreBoard';
-import { SUIT_ICONS } from '../constants/cards';
+import { cardLabel } from '../constants/cards';
+import { CardArt } from './Card';
 import { CONFIG } from '@shared/rules';
 
 export const ScoreBoard: React.FC = () => {
@@ -74,19 +75,12 @@ export const ScoreBoard: React.FC = () => {
                     {/* Card breakdown */}
                     <div className="flex gap-1 mt-2 flex-wrap">
                       {result.cards.map((card, ci) => (
-                        <span key={ci} className={`
-                          flex items-center text-xs px-1.5 py-0.5 rounded
-                          ${card.suit && ['hearts', 'diamonds'].includes(card.suit)
-                            ? 'bg-red-500/10 text-red-400'
-                            : 'bg-slate-500/20 text-slate-300'
-                          }
-                        `}>
-                          {card.rank}
-                          {card.suit && React.createElement(SUIT_ICONS[card.suit], {
-                            className: "inline-block w-3 h-3 ml-0.5",
-                            strokeWidth: 2.5,
-                            fill: "currentColor"
-                          })}
+                        <span
+                          key={ci}
+                          className="relative inline-block w-7 h-10 rounded-[4px] overflow-hidden shadow"
+                          title={cardLabel(card.rank)}
+                        >
+                          <CardArt rank={card.rank} />
                         </span>
                       ))}
                     </div>

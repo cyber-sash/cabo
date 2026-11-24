@@ -1,13 +1,14 @@
 // ─── Card Types ───
-export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
-export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
+// Cabo deck: values 0–13, no suits. The value is also the card's points.
+export type Rank = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
 
 export interface Card {
   id: string;
   rank: Rank;
-  suit: Suit;
 }
 
+// LOOK_AND_SWAP is not dealt by the current deck (11 and 12 are both a blind
+// SWAP). The type and its code paths stay so the action can come back later.
 export type ActionType = 'PEEK' | 'SPY' | 'SWAP' | 'LOOK_AND_SWAP';
 
 // ─── Shared Exports ───
@@ -36,8 +37,7 @@ export interface PlayerState {
 
 export interface PlayerCardInfo {
   id: string;
-  rank: Rank | null;  // null = face-down (hidden)
-  suit: Suit | null;
+  rank: Rank | null;  // null = face-down (hidden). Note: 0 is a valid rank.
   isRevealed: boolean;
 }
 

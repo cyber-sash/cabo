@@ -666,7 +666,6 @@ export class GameRoom {
       ? player.cards.map((card, index) => ({
           id: card.id,
           rank: player.peekedIndices.has(index) ? card.rank : null,
-          suit: player.peekedIndices.has(index) ? card.suit : null,
           isRevealed: player.peekedIndices.has(index),
         }))
       : [];
