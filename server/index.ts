@@ -388,7 +388,9 @@ function getContext(socket: Socket): {
 app.get("/health", (_: any, res: any) => res.json({ status: "ok" }));
 
 // ─── Start Server ───
-const PORT = process.env.PORT || 3001;
-httpServer.listen(PORT, () => {
-  console.log(`Cabo server running on port ${PORT}`);
+const PORT = Number(process.env.PORT) || 3001;
+// HOST=127.0.0.1 keeps the server private behind a reverse proxy (Caddy).
+const HOST = process.env.HOST || "0.0.0.0";
+httpServer.listen(PORT, HOST, () => {
+  console.log(`Cabo server running on ${HOST}:${PORT}`);
 });

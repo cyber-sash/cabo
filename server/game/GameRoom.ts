@@ -513,7 +513,9 @@ export class GameRoom {
     player.isCaboCaller = true;
     this.caboCallerId = playerId;
     this.phase = "CABO_CALLED";
-    this.finalTurnsRemaining = this.activePlayers.length - 1;
+    // advanceTurn() below decrements once for the caller's own turn,
+    // which leaves exactly one final turn for every other player.
+    this.finalTurnsRemaining = this.activePlayers.length;
     this.advanceTurn();
     return true;
   }

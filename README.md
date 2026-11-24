@@ -46,7 +46,7 @@ npm run install:all
 npm run dev
 ```
 
-The client runs on `http://localhost:5173` and the server on `http://localhost:8080`.
+The client runs on `http://localhost:5173` and the server on `http://localhost:3001`.
 
 ## Game Rules
 

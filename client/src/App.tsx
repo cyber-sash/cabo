@@ -36,17 +36,17 @@ const App: React.FC = () => {
     );
   }
 
-  <Analytics />;
-
   // In active game (playing, memorize, etc.)
   const inGame = gameState && gameState.phase !== "WAITING";
-  if (inGame) return <GameScreen />;
-
   // In a room, waiting for players
-  if (roomCode && gameState?.phase === "WAITING") return <LobbyScreen />;
+  const inLobby = roomCode && gameState?.phase === "WAITING";
 
-  // Landing page
-  return <LandingPage />;
+  return (
+    <>
+      {inGame ? <GameScreen /> : inLobby ? <LobbyScreen /> : <LandingPage />}
+      <Analytics />
+    </>
+  );
 };
 
 export default App;

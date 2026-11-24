@@ -1,0 +1,62 @@
+# Cabo at cabo.anno2026.de: build and deploy plan
+
+Updated 2026-11-24. Source: https://github.com/dcs-soni/cabo (MIT per README, no LICENSE file).
+
+## Target setup
+
+```
+Browser ──► https://cabo.anno2026.de ──► Vercel project "cabo" (static Vite build from client/)
+   │
+   └── wss ──► https://cabo-api.anno2026.de ──► Caddy on the netcup VPS (152.53.255.89)
+                                                └─► Node Socket.IO server on 127.0.0.1:3001 (systemd)
+```
+
+**Why the server goes on your VPS, not on Vercel or Render:**
+- It keeps game rooms in memory and runs timers, so it needs one long-running process. Vercel Functions can't give it that.
+- The VPS already runs Caddy (automatic HTTPS), Node 22 and Docker, and has 4 cores and 7.7 GB RAM. `*.anno2026.de` already points at it, so `cabo-api.anno2026.de` resolves today. No extra cost, unlike Render.
+- The existing sites (`anno2026.de`, `rt.anno2026.de`) stay as they are. Cabo gets its own Caddy site file with no basic auth, so friends can join.
+
+## Status
+
+### Done (local, uncommitted)
+- [x] Cloned upstream into `~/Code/personal/cabo` (remote `upstream`).
+- [x] Fixed: `<Analytics />` was never rendered (`client/src/App.tsx`).
+- [x] Fixed: **calling Cabo ended the round with no final turns.** In a 2-player game the other player got no turn; in 3+ players, one player too few. Fix in `server/game/GameRoom.ts` `callCabo()`.
+- [x] Fixed: dev server crashed (`shared/` was missing `"type": "module"`).
+- [x] Server binds to `HOST` (default `0.0.0.0`; use `127.0.0.1` on the VPS).
+- [x] README port corrected to 3001. `dist/` added to `.gitignore`.
+- [x] `client/.env.production`: `VITE_SERVER_URL=https://cabo-api.anno2026.de`.
+- [x] Both builds pass. Played locally (browser vs. a socket bot): create room, join, memorize, draw and discard, 9 = Spy action, session reconnect, Cabo call with final turn, round results with the +10 penalty.
+
+### Next: needs your go-ahead (outward-facing)
+1. **GitHub:** create the repo `cyber-sash/cabo` (fork or new private repo), commit, push.
+2. **Vercel:** new project `cabo` in "saschamueller-5868's projects":
+   - Root directory `client`, framework Vite.
+   - Env `VITE_SERVER_URL=https://cabo-api.anno2026.de`.
+   - Deploy, then add the domain `cabo.anno2026.de`.
+3. **VPS (as root via `ssh anno2026`):**
+   - Copy the server build to `/opt/cabo` and install production dependencies.
+   - systemd unit `cabo.service`: `HOST=127.0.0.1 PORT=3001 CLIENT_URL=https://cabo.anno2026.de NODE_ENV=production`, restart always.
+   - `/etc/caddy/sites/cabo-api.anno2026.de.caddy`:
+     ```
+     cabo-api.anno2026.de {
+         reverse_proxy 127.0.0.1:3001
+     }
+     ```
+   - `caddy validate`, then `systemctl reload caddy` (the other sites keep running).
+   - Check that `https://cabo-api.anno2026.de/health` returns `{"status":"ok"}`.
+4. **DNS at netcup (you do this):** add a CNAME `cabo` → the target Vercel shows for `cabo.anno2026.de`. It works like `app.anno2026.de` (`…vercel-dns-017.com`). An explicit record beats the `*` wildcard.
+
+### Then: verify live
+- [ ] Open https://cabo.anno2026.de on a laptop and a phone. Create a room and join it from the other device.
+- [ ] Play a full round including special cards, snap and a Cabo call.
+- [ ] Reload mid-game: the session should come back.
+- [ ] DevTools: the socket is connected to `wss://cabo-api.anno2026.de`, with no CORS errors.
+
+### Later (hardening)
+- Clean up abandoned rooms (memory).
+- Rate-limit room creation.
+- Uptime check on `/health`.
+- Redeploy script for the server (`git pull && npm ci && npm run build && systemctl restart cabo`).
+- Known limit: a server restart ends all live games (in-memory state).
+- Optional: upstream the Cabo final-turn fix to dcs-soni/cabo as a PR.
