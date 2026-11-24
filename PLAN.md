@@ -36,6 +36,9 @@ Browser ──► https://cabo.anno2026.de ──► Vercel project "cabo" (stat
 - [x] DNS at netcup: CNAME `cabo` → `f3834c6d55ad4390.vercel-dns-017.com.` (live 2026-11-25). Vercel certificate issued (Let's Encrypt, auto-renew). HTTP redirects to HTTPS.
 - [ ] **Optional:** give the Vercel GitHub app access to `cyber-sash/cabo` (GitHub → Settings → Applications → Vercel), then run `vercel git connect` so pushes auto-deploy. Until then, deploy with `vercel deploy --prod` from the repo root.
 
+- [x] Illustrated 0–13 deck live (2026-11-25), client and server.
+- [x] Site password-protected (HTTP Basic Auth via `client/middleware.ts`). Any username works; the password is the Vercel env var `SITE_PASSWORD` (production and preview). To change it: `vercel env rm SITE_PASSWORD production`, `vercel env add SITE_PASSWORD --environment production`, then redeploy. The game server `cabo-api.anno2026.de` itself has no password.
+
 ### Redeploy
 - Client: `vercel deploy --prod --scope saschamueller-5868s-projects` (or push, once Git is connected).
 - Server: `ssh anno2026 'cd /opt/cabo && sudo -u cabo git pull && cd server && sudo -u cabo npm ci --cache /tmp/cabo-npm-cache && sudo -u cabo npm run build && systemctl restart cabo'`
