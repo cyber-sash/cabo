@@ -8,9 +8,13 @@ import { GameRoom } from "./game/GameRoom";
 import { CONFIG } from "../shared/rules";
 
 const app = express();
-const allowedOrigins = process.env.CLIENT_URL
-  ? [process.env.CLIENT_URL, "http://localhost:5173", "http://localhost:3000"]
-  : ["http://localhost:5173", "http://localhost:3000"];
+// CLIENT_URL may list several origins, comma-separated
+// (e.g. "https://cabo.anno2026.de,https://cabo-weld.vercel.app").
+const clientOrigins = (process.env.CLIENT_URL ?? "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+const allowedOrigins = [...clientOrigins, "http://localhost:5173", "http://localhost:3000"];
 
 app.use(
   cors({
