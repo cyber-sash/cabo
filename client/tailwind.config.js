@@ -1,9 +1,13 @@
+import { tailwindColors } from './src/ebbe/design/tokens.ts';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
+        // Ebbe: Werte kommen aus src/ebbe/design/theme.ts
+        ebbe: tailwindColors(),
         cabo: {
           dark: '#0a0a0f',
           darker: '#060609',
