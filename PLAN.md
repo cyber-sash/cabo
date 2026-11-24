@@ -33,7 +33,7 @@ Browser ──► https://cabo.anno2026.de ──► Vercel project "cabo" (stat
 - [x] Vercel: project `cabo` (team saschamueller-5868's projects), root `client`, Vite, Node 22. Production deploy is Ready. Domain `cabo.anno2026.de` added.
 - [x] VPS: `/opt/cabo` (user `cabo`), systemd `cabo.service` on 127.0.0.1:3001 (Node 18 system binary).
 - [x] Caddy: `/etc/caddy/sites/cabo-api.anno2026.de.caddy`, TLS issued. `https://cabo-api.anno2026.de/health` returns ok. Live 2-client WebSocket smoke test passed.
-- [ ] **DNS at netcup (you):** CNAME `cabo` → `f3834c6d55ad4390.vercel-dns-017.com.` (needed because the `*` wildcard points at the VPS).
+- [x] DNS at netcup: CNAME `cabo` → `f3834c6d55ad4390.vercel-dns-017.com.` (live 2026-11-25). Vercel certificate issued (Let's Encrypt, auto-renew). HTTP redirects to HTTPS.
 - [ ] **Optional:** give the Vercel GitHub app access to `cyber-sash/cabo` (GitHub → Settings → Applications → Vercel), then run `vercel git connect` so pushes auto-deploy. Until then, deploy with `vercel deploy --prod` from the repo root.
 
 ### Redeploy
