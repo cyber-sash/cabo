@@ -28,24 +28,17 @@ Browser ──► https://cabo.anno2026.de ──► Vercel project "cabo" (stat
 - [x] `client/.env.production`: `VITE_SERVER_URL=https://cabo-api.anno2026.de`.
 - [x] Both builds pass. Played locally (browser vs. a socket bot): create room, join, memorize, draw and discard, 9 = Spy action, session reconnect, Cabo call with final turn, round results with the +10 penalty.
 
-### Next: needs your go-ahead (outward-facing)
-1. **GitHub:** create the repo `cyber-sash/cabo` (fork or new private repo), commit, push.
-2. **Vercel:** new project `cabo` in "saschamueller-5868's projects":
-   - Root directory `client`, framework Vite.
-   - Env `VITE_SERVER_URL=https://cabo-api.anno2026.de`.
-   - Deploy, then add the domain `cabo.anno2026.de`.
-3. **VPS (as root via `ssh anno2026`):**
-   - Copy the server build to `/opt/cabo` and install production dependencies.
-   - systemd unit `cabo.service`: `HOST=127.0.0.1 PORT=3001 CLIENT_URL=https://cabo.anno2026.de NODE_ENV=production`, restart always.
-   - `/etc/caddy/sites/cabo-api.anno2026.de.caddy`:
-     ```
-     cabo-api.anno2026.de {
-         reverse_proxy 127.0.0.1:3001
-     }
-     ```
-   - `caddy validate`, then `systemctl reload caddy` (the other sites keep running).
-   - Check that `https://cabo-api.anno2026.de/health` returns `{"status":"ok"}`.
-4. **DNS at netcup (you do this):** add a CNAME `cabo` → the target Vercel shows for `cabo.anno2026.de`. It works like `app.anno2026.de` (`…vercel-dns-017.com`). An explicit record beats the `*` wildcard.
+### Deployed 2026-11-24
+- [x] GitHub: fork https://github.com/cyber-sash/cabo (main pushed).
+- [x] Vercel: project `cabo` (team saschamueller-5868's projects), root `client`, Vite, Node 22. Production deploy is Ready. Domain `cabo.anno2026.de` added.
+- [x] VPS: `/opt/cabo` (user `cabo`), systemd `cabo.service` on 127.0.0.1:3001 (Node 18 system binary).
+- [x] Caddy: `/etc/caddy/sites/cabo-api.anno2026.de.caddy`, TLS issued. `https://cabo-api.anno2026.de/health` returns ok. Live 2-client WebSocket smoke test passed.
+- [ ] **DNS at netcup (you):** CNAME `cabo` → `f3834c6d55ad4390.vercel-dns-017.com.` (needed because the `*` wildcard points at the VPS).
+- [ ] **Optional:** give the Vercel GitHub app access to `cyber-sash/cabo` (GitHub → Settings → Applications → Vercel), then run `vercel git connect` so pushes auto-deploy. Until then, deploy with `vercel deploy --prod` from the repo root.
+
+### Redeploy
+- Client: `vercel deploy --prod --scope saschamueller-5868s-projects` (or push, once Git is connected).
+- Server: `ssh anno2026 'cd /opt/cabo && sudo -u cabo git pull && cd server && sudo -u cabo npm ci --cache /tmp/cabo-npm-cache && sudo -u cabo npm run build && systemctl restart cabo'`
 
 ### Then: verify live
 - [ ] Open https://cabo.anno2026.de on a laptop and a phone. Create a room and join it from the other device.
