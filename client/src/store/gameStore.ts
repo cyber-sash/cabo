@@ -53,6 +53,8 @@ interface GameStore {
 
 let errorTimeoutId: NodeJS.Timeout | null = null;
 
+let listenersAttached = false;
+
 export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
@@ -95,6 +97,23 @@ export const useGameStore = create<GameStore>()(
   initializeSocket: () => {
     socketService.connect();
     set({ isConnected: true });
+
+    // Several screens call this; attach the listeners only once.
+    if (listenersAttached) return;
+    listenersAttached = true;
+
+    // After any (re)connect — e.g. the phone was locked or the app was in the
+    // background — tell the server this socket is still our player.
+    socketService.on('connect', () => {
+      const { roomCode, playerId } = get();
+      if (!roomCode || !playerId) return;
+      socketService
+        .emit(SocketEvents.RECONNECT, { roomCode, playerId })
+        .then((res: any) => {
+          if (!res?.success) get().clearSession();
+        })
+        .catch(() => {});
+    });
 
     socketService.on(SocketEvents.STATE_UPDATE, (state: ClientGameState) => {
       const prev = get().gameState;

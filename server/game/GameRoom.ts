@@ -29,6 +29,8 @@ export class GameRoom {
   scores: Record<string, number[]> = {};
   totalScores: Record<string, number> = {};
   hostId: string = "";
+  /** When the last connected player left; null while anyone is connected. */
+  emptySince: number | null = null;
   drawnCard: Map<string, Card> = new Map(); // playerId -> drawn card
   drawnFromDiscard: Set<string> = new Set(); // playerIds who drew from discard
   pendingAction: Map<string, ActionType> = new Map();

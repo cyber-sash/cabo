@@ -8,7 +8,13 @@ class SocketService {
   private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
 
   connect(): Socket {
-    if (this.socket?.connected) return this.socket;
+    // Reuse the socket while it is connected *or still connecting*, so that
+    // several screens calling connect() don't open parallel connections.
+    // Socket.IO reconnects this same socket on its own after a drop.
+    if (this.socket) {
+      if (!this.socket.connected && !this.socket.active) this.socket.connect();
+      return this.socket;
+    }
 
     this.socket = io(SERVER_URL, {
       transports: ['websocket', 'polling'],
@@ -69,4 +75,7 @@ class SocketService {
 }
 
 export const socketService = new SocketService();
+
+// Dev only: lets a test drop the connection from the browser console.
+if (import.meta.env.DEV) (window as any).__caboSocket = socketService;
 export { SocketEvents };

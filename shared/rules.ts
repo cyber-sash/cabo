@@ -33,6 +33,9 @@ export const CONFIG = {
   ROOM_CODE_LENGTH: 6,
   CABO_ALERT_DURATION_MS: 5000,
   PEEK_DURATION_MS: 2500,
+  // Keep a room alive this long after its last player disconnects, so a host
+  // who switches apps (e.g. to share the code) or loses signal can come back.
+  ROOM_IDLE_TTL_MS: 30 * 60 * 1000,
 } as const;
 
 // Special win: a hand of exactly two 12s and two 13s.

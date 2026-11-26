@@ -78,6 +78,7 @@ io.on("connection", (socket: Socket) => {
         broadcastState(room);
       };
 
+      console.log(`Room ${code} created`);
       callback({ success: true, roomCode: code, playerId });
       broadcastState(room);
     },
@@ -87,8 +88,9 @@ io.on("connection", (socket: Socket) => {
   socket.on(
     SocketEvents.JOIN_ROOM,
     (data: { roomCode: string; playerName: string }, callback: any) => {
-      const room = rooms.get(data.roomCode.toUpperCase());
+      const room = rooms.get(data.roomCode.trim().toUpperCase());
       if (!room) {
+        console.log(`Join failed, room ${data.roomCode} not found`);
         callback({ success: false, error: "Room not found" });
         return;
       }
@@ -104,8 +106,9 @@ io.on("connection", (socket: Socket) => {
         return;
       }
 
-      playerRooms.set(socket.id, data.roomCode.toUpperCase());
-      socket.join(data.roomCode.toUpperCase());
+      room.emptySince = null;
+      playerRooms.set(socket.id, room.code);
+      socket.join(room.code);
 
       callback({ success: true, roomCode: room.code, playerId });
       io.to(room.code).emit(SocketEvents.PLAYER_JOINED, {
@@ -340,6 +343,7 @@ io.on("connection", (socket: Socket) => {
       // Rebind the new socket to the player
       player.socketId = socket.id;
       player.isConnected = true;
+      room.emptySince = null;
       playerRooms.set(socket.id, data.roomCode);
       socket.join(data.roomCode);
 
@@ -364,15 +368,29 @@ io.on("connection", (socket: Socket) => {
           broadcastState(room);
         }
 
-        // Clean up empty rooms
+        // Don't delete the room yet: phones drop the socket whenever the app
+        // is backgrounded. The sweep below removes rooms idle for too long.
         if (room.activePlayers.length === 0) {
-          rooms.delete(roomCode);
+          room.emptySince = Date.now();
         }
       }
       playerRooms.delete(socket.id);
     }
   });
 });
+
+// ─── Idle room sweep ───
+setInterval(() => {
+  const now = Date.now();
+  for (const [code, room] of rooms) {
+    if (room.activePlayers.length > 0) {
+      room.emptySince = null;
+    } else if (room.emptySince && now - room.emptySince > CONFIG.ROOM_IDLE_TTL_MS) {
+      rooms.delete(code);
+      console.log(`Room ${code} removed after being empty for ${Math.round((now - room.emptySince) / 60000)} min`);
+    }
+  }
+}, 60 * 1000).unref();
 
 // ─── Helpers ───
 
